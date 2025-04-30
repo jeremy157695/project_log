@@ -1,0 +1,128 @@
+<?php
+// 資料庫連線設定
+$host = '127.0.0.1';
+$user = 'root';
+$pass = '';
+$dbname = 'project_log';
+$conn = new mysqli($host, $user, $pass, $dbname);
+$conn->set_charset("utf8");
+
+if ($conn->connect_error) {
+    die("連線失敗：" . $conn->connect_error);
+}
+
+// 處理新增
+if (isset($_POST['action']) && $_POST['action'] == 'add') {
+    $date = $_POST['date'];
+    $content = $_POST['content'];
+    $note = $_POST['note'];
+    $stmt = $conn->prepare("INSERT INTO records (date, content, note) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $date, $content, $note);
+    $stmt->execute();
+    header("Location: index.php");
+    exit;
+}
+
+// 處理更新
+if (isset($_POST['action']) && $_POST['action'] == 'update') {
+    $id = $_POST['id'];
+    $date = $_POST['date'];
+    $content = $_POST['content'];
+    $note = $_POST['note'];
+    $stmt = $conn->prepare("UPDATE records SET date=?, content=?, note=? WHERE id=?");
+    $stmt->bind_param("sssi", $date, $content, $note, $id);
+    $stmt->execute();
+    header("Location: index.php");
+    exit;
+}
+
+// 處理刪除
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $stmt = $conn->prepare("DELETE FROM records WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    header("Location: index.php");
+    exit;
+}
+
+// 讀取所有紀錄
+$result = $conn->query("SELECT * FROM records ORDER BY date DESC");
+
+// 如果是要編輯的項目
+$editRecord = null;
+if (isset($_GET['edit'])) {
+    $id = intval($_GET['edit']);
+    $stmt = $conn->prepare("SELECT * FROM records WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $editResult = $stmt->get_result();
+    $editRecord = $editResult->fetch_assoc();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>專案紀錄</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="mb-4">專案事項紀錄</h1>
+
+        <!-- 新增或編輯表單 -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
+            <?php if ($editRecord): ?>
+                <input type="hidden" name="id" value="<?= htmlspecialchars($editRecord['id']) ?>">
+            <?php endif; ?>
+            <div class="mb-3">
+                <label class="form-label">日期</label>
+                <input type="date" name="date" class="form-control" required value="<?= $editRecord ? htmlspecialchars($editRecord['date']) : '' ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">內容</label>
+                <textarea name="content" class="form-control" rows="3" required><?= $editRecord ? htmlspecialchars($editRecord['content']) : '' ?></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">備註</label>
+                <textarea name="note" class="form-control" rows="2"><?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?></textarea>
+            </div>
+            <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?>">
+                <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
+            </button>
+            <?php if ($editRecord): ?>
+                <a href="index.php" class="btn btn-secondary">取消編輯</a>
+            <?php endif; ?>
+        </form>
+
+        <!-- 紀錄列表 -->
+        <h3>紀錄列表</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+			<th style="width: 150px;text-align: center;">日期</th>
+            		<th style="width: 400px;text-align: center;">內容</th>
+            		<th style="width: 300px;text-align: center;">備註</th>
+            		<th style="width: 150px;text-align: center;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['date']) ?></td>
+                    <td><?= nl2br(htmlspecialchars($row['content'])) ?></td>
+                    <td><?= nl2br(htmlspecialchars($row['note'])) ?></td>
+                    <td>
+                        <a href="?edit=<?= $row['id'] ?>" class="btn btn-sm btn-warning">編輯</a>
+                        <a href="?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除嗎？')">刪除</a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
