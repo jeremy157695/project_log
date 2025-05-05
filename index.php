@@ -46,6 +46,13 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
+// 處理清除全部資料
+if (isset($_POST['action']) && $_POST['action'] === 'clear_all') {
+    $conn->query("DELETE FROM records");
+    header("Location: index.php");
+    exit;
+}
+
 // 編輯功能
 $editRecord = null;
 if (isset($_GET['edit'])) {
@@ -118,6 +125,11 @@ $result = $dataStmt->get_result();
         <?php endif; ?>
     </form>
 
+    <form method="post" onsubmit="return confirm('⚠️ 確定要清除所有資料嗎？此操作無法復原！');" class="mb-3">
+        <input type="hidden" name="action" value="clear_all">
+        <button type="submit" class="btn btn-danger">清除所有紀錄</button>
+        <a href="export.php" class="btn btn-success ms-2">匯出 CSV</a>
+    </form>
     <form method="post" class="mb-4">
         <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
         <?php if ($editRecord): ?>
