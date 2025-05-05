@@ -49,6 +49,10 @@ if (isset($_GET['delete'])) {
 // 處理清除全部資料
 if (isset($_POST['action']) && $_POST['action'] === 'clear_all') {
     $conn->query("DELETE FROM records");
+    
+    // 重設 AUTO_INCREMENT 計數器
+    $conn->query("ALTER TABLE records AUTO_INCREMENT = 1");
+    
     header("Location: index.php");
     exit;
 }
