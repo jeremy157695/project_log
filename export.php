@@ -6,19 +6,30 @@ $dbname = 'project_log';
 $conn = new mysqli($host, $user, $pass, $dbname);
 $conn->set_charset("utf8");
 
-header('Content-Type: text/csv; charset=utf-8');
-header('Content-Disposition: attachment; filename=records_export.csv');
+// 設定 HTTP 標頭為 Excel
+header("Content-Type: application/vnd.ms-excel");
+header("Content-Disposition: attachment; filename=records_export.xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 
-// 👇 這一行是關鍵：加入 BOM
-echo "\xEF\xBB\xBF";
-
-$output = fopen('php://output', 'w');
-fputcsv($output, ['ID', '日期', '內容', '備註']);
+// 產生 Excel 表格（實際是 HTML 表格）
+echo "<table border='1'>";
+echo "<tr>
+        <th>ID</th>
+        <th>日期</th>
+        <th>內容</th>
+        <th>備註</th>
+      </tr>";
 
 $result = $conn->query("SELECT * FROM records ORDER BY date DESC");
 while ($row = $result->fetch_assoc()) {
-    fputcsv($output, [$row['id'], $row['date'], $row['content'], $row['note']]);
+    echo "<tr>";
+    echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['date']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['content']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['note']) . "</td>";
+    echo "</tr>";
 }
-fclose($output);
+echo "</table>";
 exit;
 ?>
