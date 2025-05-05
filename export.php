@@ -9,6 +9,9 @@ $conn->set_charset("utf8");
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename=records_export.csv');
 
+// 👇 這一行是關鍵：加入 BOM
+echo "\xEF\xBB\xBF";
+
 $output = fopen('php://output', 'w');
 fputcsv($output, ['ID', '日期', '內容', '備註']);
 
