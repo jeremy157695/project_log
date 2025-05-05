@@ -125,19 +125,19 @@ $result = $dataStmt->get_result();
         <?php endif; ?>
     </form>
 
-    //<form method="post" onsubmit="return confirm('⚠️ 確定要清除所有資料嗎？此操作無法復原！');" class="mb-3">
-    //    <input type="hidden" name="action" value="clear_all">
-    //    <button type="submit" class="btn btn-danger">清除所有紀錄</button>
-    //    <a href="export.php" class="btn btn-success ms-2">匯出 CSV</a>
-    //</form>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">新增紀錄</h3>
-        <div>
-            <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
-            <a href="clear.php" class="btn btn-danger" onclick="return confirm('確定要清除所有資料嗎？')">清除資料</a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0"><?= $editRecord ? '編輯紀錄' : '新增紀錄' ?></h3>
+    <div class="d-flex">
+        <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?> me-2">
+            <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
+        </button>
+        <?php if ($editRecord): ?>
+            <a href="index.php" class="btn btn-secondary me-2">取消編輯</a>
+        <?php endif; ?>
+        <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
+        <a href="clear.php" class="btn btn-danger" onclick="return confirm('確定要清除所有資料嗎？')">清除資料</a>
     </div>
+</div>
     
     <form method="post" class="mb-4">
         <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
