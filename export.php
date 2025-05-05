@@ -26,8 +26,8 @@ while ($row = $result->fetch_assoc()) {
     echo "<tr>";
     echo "<td>" . htmlspecialchars($row['id']) . "</td>";
     echo "<td>" . htmlspecialchars($row['date']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['content']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['note']) . "</td>";
+        echo "<td>" . nl2br(htmlspecialchars($row['content'])) . "</td>";
+        echo "<td>" . nl2br(htmlspecialchars($row['note'])) . "</td>";
     echo "</tr>";
 }
 echo "</table>";
