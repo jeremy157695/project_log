@@ -77,7 +77,7 @@ $types = '';
 if (isset($_GET['search']) && $_GET['search'] !== '') {
     $search = trim($_GET['search']);
     $searchSql = "WHERE content LIKE ? OR note LIKE ?";
-    $like = "%" . $conn->real_escape_string($search) . "%";
+    $like = "%" . $search . "%";
     $params[] = $like;
     $params[] = $like;
     $types = "ss";
@@ -86,7 +86,7 @@ if (isset($_GET['search']) && $_GET['search'] !== '') {
 // 查詢總筆數
 $countSql = "SELECT COUNT(*) as total FROM records $searchSql";
 $countStmt = $conn->prepare($countSql);
-if ($search) {
+if ($types) {
     $countStmt->bind_param($types, ...$params);
 }
 $countStmt->execute();
@@ -117,36 +117,35 @@ $result = $dataStmt->get_result();
 <div class="container">
     <h1 class="mb-4">專案事項紀錄</h1>
 
+    <!-- 搜尋 -->
     <form method="get" class="mb-3 d-flex" role="search">
         <input type="text" name="search" class="form-control me-2" placeholder="搜尋內容或備註..." value="<?= htmlspecialchars($search) ?>">
         <button type="submit" class="btn btn-outline-primary">搜尋</button>
         <?php if ($search): ?>
-            <a href="index.php" class="btn btn-outline-secondary ms-2">清除</a>
+            <a href="index.php?page=1" class="btn btn-outline-secondary ms-2">清除</a>
         <?php endif; ?>
     </form>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0"><?= $editRecord ? '編輯紀錄' : '新增紀錄' ?></h3>
-    <div class="d-flex">
-        <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?> me-2">
-            <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
-        </button>
+    <!-- 表單：新增 / 編輯 -->
+    <form method="post" class="mb-4">
+        <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
         <?php if ($editRecord): ?>
-            <a href="index.php" class="btn btn-secondary me-2">取消編輯</a>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($editRecord['id']) ?>">
         <?php endif; ?>
-        <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
-        <a href="clear.php" class="btn btn-danger" onclick="return confirm('確定要清除所有資料嗎？')">清除資料</a>
-    </div>
-</div>
-    
-<form method="post" class="mb-4">
-    <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
-    <?php if ($editRecord): ?>
-        <input type="hidden" name="id" value="<?= htmlspecialchars($editRecord['id']) ?>">
-    <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0"><?= $editRecord ? '編輯紀錄' : '新增紀錄' ?></h3>
+        <div class="mb-3">
+            <label class="form-label">日期</label>
+            <input type="date" name="date" class="form-control" required value="<?= $editRecord ? htmlspecialchars($editRecord['date']) : '' ?>">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">內容</label>
+            <textarea name="content" class="form-control" rows="8" required><?= $editRecord ? htmlspecialchars($editRecord['content']) : '' ?></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">備註</label>
+            <textarea name="note" class="form-control" rows="2"><?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?></textarea>
+        </div>
+
         <div class="d-flex">
             <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?> me-2">
                 <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
@@ -155,28 +154,16 @@ $result = $dataStmt->get_result();
                 <a href="index.php" class="btn btn-secondary me-2">取消編輯</a>
             <?php endif; ?>
             <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
-            <form method="post" action="index.php" onsubmit="return confirm('確定要清除所有資料嗎？')">
-                <input type="hidden" name="action" value="clear_all">
-                <button type="submit" class="btn btn-danger">清除資料</button>
-            </form>
         </div>
-    </div>
+    </form>
 
-    <div class="mb-3">
-        <label class="form-label">日期</label>
-        <input type="date" name="date" class="form-control" required value="<?= $editRecord ? htmlspecialchars($editRecord['date']) : '' ?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">內容</label>
-        <textarea name="content" class="form-control" rows="8" required><?= $editRecord ? htmlspecialchars($editRecord['content']) : '' ?></textarea>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">備註</label>
-        <textarea name="note" class="form-control" rows="2"><?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?></textarea>
-    </div>
-</form>
+    <!-- 清除資料按鈕 -->
+    <form method="post" action="index.php" onsubmit="return confirm('確定要清除所有資料嗎？')">
+        <input type="hidden" name="action" value="clear_all">
+        <button type="submit" class="btn btn-danger mb-3">清除所有資料</button>
+    </form>
 
-
+    <!-- 紀錄列表 -->
     <h3>紀錄列表</h3>
     <table class="table table-bordered table-striped">
         <thead class="table-light">
@@ -206,7 +193,7 @@ $result = $dataStmt->get_result();
         </tbody>
     </table>
 
-    <!-- 分頁按鈕 -->
+    <!-- 分頁 -->
     <nav>
         <ul class="pagination justify-content-center">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
