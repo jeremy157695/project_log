@@ -156,12 +156,7 @@ $result = $dataStmt->get_result();
             <label class="form-label">備註</label>
             <textarea name="note" class="form-control" rows="2"> <?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?> </textarea>
         </div>
-        <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?>">
-            <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
-        </button>
-        <?php if ($editRecord): ?>
-            <a href="index.php" class="btn btn-secondary">取消編輯</a>
-        <?php endif; ?>
+
     </form>
 
     <h3>紀錄列表</h3>
