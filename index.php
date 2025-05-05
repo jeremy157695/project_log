@@ -130,6 +130,14 @@ $result = $dataStmt->get_result();
         <button type="submit" class="btn btn-danger">清除所有紀錄</button>
         <a href="export.php" class="btn btn-success ms-2">匯出 CSV</a>
     </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">新增紀錄</h3>
+        <div>
+            <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
+            <a href="clear.php" class="btn btn-danger" onclick="return confirm('確定要清除所有資料嗎？')">清除資料</a>
+        </div>
+    </div>
     <form method="post" class="mb-4">
         <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
         <?php if ($editRecord): ?>
