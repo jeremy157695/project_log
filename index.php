@@ -139,25 +139,43 @@ $result = $dataStmt->get_result();
     </div>
 </div>
     
-    <form method="post" class="mb-4">
-        <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
-        <?php if ($editRecord): ?>
-            <input type="hidden" name="id" value="<?= htmlspecialchars($editRecord['id']) ?>">
-        <?php endif; ?>
-        <div class="mb-3">
-            <label class="form-label">日期</label>
-            <input type="date" name="date" class="form-control" required value="<?= $editRecord ? htmlspecialchars($editRecord['date']) : '' ?>">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">內容</label>
-            <textarea name="content" class="form-control" rows="8" required><?= $editRecord ? htmlspecialchars($editRecord['content']) : '' ?></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">備註</label>
-            <textarea name="note" class="form-control" rows="2"> <?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?> </textarea>
-        </div>
+<form method="post" class="mb-4">
+    <input type="hidden" name="action" value="<?= $editRecord ? 'update' : 'add' ?>">
+    <?php if ($editRecord): ?>
+        <input type="hidden" name="id" value="<?= htmlspecialchars($editRecord['id']) ?>">
+    <?php endif; ?>
 
-    </form>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0"><?= $editRecord ? '編輯紀錄' : '新增紀錄' ?></h3>
+        <div class="d-flex">
+            <button type="submit" class="btn btn-<?= $editRecord ? 'success' : 'primary' ?> me-2">
+                <?= $editRecord ? '更新紀錄' : '新增紀錄' ?>
+            </button>
+            <?php if ($editRecord): ?>
+                <a href="index.php" class="btn btn-secondary me-2">取消編輯</a>
+            <?php endif; ?>
+            <a href="export.php" class="btn btn-success me-2">匯出 CSV</a>
+            <form method="post" action="index.php" onsubmit="return confirm('確定要清除所有資料嗎？')">
+                <input type="hidden" name="action" value="clear_all">
+                <button type="submit" class="btn btn-danger">清除資料</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">日期</label>
+        <input type="date" name="date" class="form-control" required value="<?= $editRecord ? htmlspecialchars($editRecord['date']) : '' ?>">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">內容</label>
+        <textarea name="content" class="form-control" rows="8" required><?= $editRecord ? htmlspecialchars($editRecord['content']) : '' ?></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">備註</label>
+        <textarea name="note" class="form-control" rows="2"><?= $editRecord ? htmlspecialchars($editRecord['note']) : '' ?></textarea>
+    </div>
+</form>
+
 
     <h3>紀錄列表</h3>
     <table class="table table-bordered table-striped">
